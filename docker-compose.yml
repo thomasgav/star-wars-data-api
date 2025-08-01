@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  django-star-wars:
+    build: .
+    container_name: star-wars-api
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./static:/app/staticfiles
+    env_file:
+      - .env
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:

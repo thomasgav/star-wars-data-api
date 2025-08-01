@@ -1,0 +1,13 @@
+Django==5.1.5
+django-filter
+djangorestframework
+djangorestframework-simplejwt
+dj-database-url
+whitenoise
+drf-spectacular
+psycopg2-binary
+python-dotenv
+requests
+pytest
+pytest-django
+django-silk
