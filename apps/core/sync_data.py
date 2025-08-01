@@ -2,6 +2,7 @@ import requests
 from django.db import transaction
 
 from .models import Planet, Species, Character, Vehicle, Starship, Film
+from api.exceptions import SyncFailed
 
 
 def fetch_all(url):
@@ -14,14 +15,18 @@ def fetch_all(url):
         print(f"Error fetching data: {e}")
         raise e
 
+
 @transaction.atomic
 def sync():
-    planets = sync_planets()
-    species = sync_species(planets)
-    characters = sync_characters(planets, species)
-    vehicles = sync_vehicles(characters)
-    starships = sync_starships(characters)
-    films = sync_films(characters, planets, species, vehicles, starships)
+    try:
+        planets = sync_planets()
+        species = sync_species(planets)
+        characters = sync_characters(planets, species)
+        vehicles = sync_vehicles(characters)
+        starships = sync_starships(characters)
+        films = sync_films(characters, planets, species, vehicles, starships)
+    except Exception as e:
+        raise SyncFailed()
 
 
 def sync_planets():

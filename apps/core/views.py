@@ -5,7 +5,6 @@ from rest_framework import status
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Prefetch
 
 from .models import *
 from .serializers import *
@@ -15,11 +14,8 @@ from .sync_data import sync
 
 class SyncView(APIView):
     def post(self, request):
-        try:
-            sync()
-            return Response({"detail": "Star Wars data synced successfully"}, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response({"detail": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        sync()
+        return Response({"detail": "Star Wars data synced successfully"}, status=status.HTTP_200_OK)
 
 
 class FilmViewSet(viewsets.ModelViewSet):
