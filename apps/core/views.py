@@ -19,6 +19,63 @@ class SyncView(APIView):
 
 
 class FilmViewSet(viewsets.ModelViewSet):
+    # queryset = Film.objects.prefetch_related(
+    #     Prefetch("characters", queryset=Character.objects.select_related("planet").prefetch_related("species")),
+    #     "planets",
+    #     "starships__pilots",
+    #     "vehicles__pilots",
+    #     "species"
+    # )
+    # queryset = Film.objects.prefetch_related(
+    #     # Prefetch characters and their related data
+    #     Prefetch(
+    #         "characters",
+    #         queryset=Character.objects.select_related("planet").prefetch_related(
+    #             # Prefetch species and their related planet
+    #             Prefetch(
+    #                 "species",
+    #                 queryset=Species.objects.select_related("planet")
+    #             )
+    #         )
+    #     ),
+    #     # Prefetch planets (top-level relationship to Film)
+    #     "planets",
+    #     # Prefetch starships and their pilots, and the pilots' related data
+    #     Prefetch(
+    #         "starships",
+    #         queryset=Starship.objects.prefetch_related(
+    #             Prefetch(
+    #                 "pilots",
+    #                 queryset=Character.objects.select_related("planet").prefetch_related(
+    #                     Prefetch(
+    #                         "species",
+    #                         queryset=Species.objects.select_related("planet")
+    #                     )
+    #                 )
+    #             )
+    #         )
+    #     ),
+    #     # Prefetch vehicles and their pilots, and the pilots' related data
+    #     Prefetch(
+    #         "vehicles",
+    #         queryset=Vehicle.objects.prefetch_related(
+    #             Prefetch(
+    #                 "pilots",
+    #                 queryset=Character.objects.select_related("planet").prefetch_related(
+    #                     Prefetch(
+    #                         "species",
+    #                         queryset=Species.objects.select_related("planet")
+    #                     )
+    #                 )
+    #             )
+    #         )
+    #     ),
+    #     # Prefetch species and their related planet
+    #     Prefetch(
+    #         "species",
+    #         queryset=Species.objects.select_related("planet")
+    #     )
+    # )
     queryset = Film.objects.all()
     serializer_class = FilmSerializer
     permission_classes = [IsAuthenticated]
@@ -27,6 +84,7 @@ class FilmViewSet(viewsets.ModelViewSet):
 
 
 class CharacterViewSet(viewsets.ModelViewSet):
+    # queryset = Character.objects.select_related("planet").prefetch_related("species")
     queryset = Character.objects.all()
     serializer_class = CharacterSerializer
     permission_classes = [IsAuthenticated]
@@ -44,6 +102,7 @@ class PlanetViewSet(viewsets.ModelViewSet):
 
 class SpeciesViewSet(viewsets.ModelViewSet):
     queryset = Species.objects.all()
+    # queryset = Species.objects.select_related("planet")
     serializer_class = SpeciesSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -52,6 +111,7 @@ class SpeciesViewSet(viewsets.ModelViewSet):
 
 class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
+    # queryset = Vehicle.objects.prefetch_related("pilots__species", "pilots__planet")
     serializer_class = VehicleSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter]
@@ -59,6 +119,7 @@ class VehicleViewSet(viewsets.ModelViewSet):
 
 
 class StarshipViewSet(viewsets.ModelViewSet):
+    # queryset = Starship.objects.prefetch_related("pilots__species", "pilots__planet")
     queryset = Starship.objects.all()
     serializer_class = StarshipSerializer
     permission_classes = [IsAuthenticated]
