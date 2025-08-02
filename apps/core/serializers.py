@@ -1,19 +1,6 @@
 from rest_framework import serializers
-from .models import Film, Character, Planet, Species, Vehicle, Starship
 
-
-class PlanetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Planet
-        fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at']
-
-
-class SpeciesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Species
-        fields = '__all__'
-        read_only_fields = ['created_at', 'updated_at']
+from .models import Film, Character, Starship
 
 
 class CharacterSerializer(serializers.ModelSerializer):
@@ -23,9 +10,11 @@ class CharacterSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
 
-class VehicleSerializer(serializers.ModelSerializer):
+class StarshipReadOnlySerializer(serializers.ModelSerializer):
+    pilots = CharacterSerializer(many=True)
+
     class Meta:
-        model = Vehicle
+        model = Starship
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
 
@@ -33,6 +22,16 @@ class VehicleSerializer(serializers.ModelSerializer):
 class StarshipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Starship
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class FilmReadOnlySerializer(serializers.ModelSerializer):
+    characters = CharacterSerializer(many=True)
+    starships = StarshipSerializer(many=True)
+
+    class Meta:
+        model = Film
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
 

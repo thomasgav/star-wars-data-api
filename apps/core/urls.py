@@ -8,9 +8,6 @@ router = DefaultRouter()
 
 router.register(r'films', FilmViewSet)
 router.register(r'character', CharacterViewSet)
-router.register(r'planets', PlanetViewSet)
-router.register(r'species', SpeciesViewSet)
-router.register(r'vehicles', VehicleViewSet)
 router.register(r'starships', StarshipViewSet)
 
 

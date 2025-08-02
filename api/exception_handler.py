@@ -1,13 +1,7 @@
 from rest_framework.views import exception_handler
 from rest_framework.response import Response
 from rest_framework import status
-from api.exceptions import SyncFailed
-from rest_framework.exceptions import (
-    ValidationError,
-    AuthenticationFailed,
-    NotAuthenticated,
-    PermissionDenied,
-)
+from rest_framework.exceptions import ValidationError
 
 def custom_exception_handler(exc, context):
     response = exception_handler(exc, context)
@@ -31,5 +25,3 @@ def custom_exception_handler(exc, context):
     return Response({
         'message': message,
     }, status=response.status_code)
-
-    return response
