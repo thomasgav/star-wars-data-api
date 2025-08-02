@@ -1,8 +1,5 @@
-from django.contrib.auth import get_user_model
 from django.db import models
 from api.models import BaseModel
-
-User = get_user_model()
 
 
 class Character(BaseModel):

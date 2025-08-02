@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -17,13 +17,14 @@ class SyncView(APIView):
 
     def post(self, request):
         sync()
-        return Response({"detail": "Star Wars data synced successfully"}, status=status.HTTP_200_OK)
+        return Response({"message": "Star Wars data synced successfully!"}, status=status.HTTP_200_OK)
 
 
 class FilmViewSet(viewsets.ModelViewSet):
     queryset = Film.objects.prefetch_related('characters', 'starships__pilots')
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    search_fields = ['title']
     pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
@@ -63,14 +64,16 @@ class CharacterViewSet(viewsets.ModelViewSet):
     queryset = Character.objects.all()
     serializer_class = CharacterSerializer
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    search_fields = ['name']
     pagination_class = StandardResultsSetPagination
 
 
 class StarshipViewSet(viewsets.ModelViewSet):
     queryset = Starship.objects.prefetch_related("pilots")
     permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    search_fields = ['name']
     pagination_class = StandardResultsSetPagination
 
     def get_serializer_class(self):
