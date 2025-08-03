@@ -28,7 +28,7 @@ class StarshipSerializer(serializers.ModelSerializer):
 
 class FilmReadOnlySerializer(serializers.ModelSerializer):
     characters = CharacterSerializer(many=True)
-    starships = StarshipSerializer(many=True)
+    starships = StarshipReadOnlySerializer(many=True)
 
     class Meta:
         model = Film
