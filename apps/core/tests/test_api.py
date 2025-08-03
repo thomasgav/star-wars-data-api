@@ -14,7 +14,6 @@ class BaseAPITestCase(APITestCase):
         self.user = User.objects.create_user(username="testuser", password="pass1234", email="example12@email.com")
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
-        # self.client.login(username="testuser", password="pass1234")
 
 
 class CharacterTests(BaseAPITestCase):
