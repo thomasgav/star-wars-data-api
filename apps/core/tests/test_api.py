@@ -31,7 +31,7 @@ class CharacterTests(BaseAPITestCase):
 
         return character
 
-    def test_create_dummy_character(self):
+    def test_create_character(self):
         url = reverse("character-list")
         data = {
             "name": "Thomas Gav",
@@ -79,6 +79,64 @@ class CharacterTests(BaseAPITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Character.objects.count(), 0)
+
+    def test_create_character_unauthenticated(self):
+        url = reverse("character-list")
+        data = {
+            "name": "Thomas Gav",
+            "height": "180",
+            "mass": "85",
+            "hair_color": "Black",
+            "skin_color": "Fair",
+            "eye_color": "Brown",
+            "birth_year": "1997",
+            "gender": "Male"
+        }
+        client = APIClient()
+        response = client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(Character.objects.count(), 0)
+
+    def test_create_character_fail_not_null_value_missing(self):
+        url = reverse("character-list")
+        data = {
+            "name": "Thomas Gav",
+            "mass": "85",
+            "hair_color": "Black",
+            "skin_color": "Fair",
+            "eye_color": "Brown",
+            "birth_year": "1997",
+            "gender": "Male"
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('height', response.data['errors'])
+        self.assertIn('This field is required.', str(response.data['errors']['height']))
+
+    def test_retrieve_characters_unauthenticated(self):
+        character = self.create_dummy_character()
+        client = APIClient()
+
+        url = reverse('character-list')
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_character_unauthenticated(self):
+        character = self.create_dummy_character()
+
+        url = reverse("character-detail", args=[character.id])
+        data = {"name": "Another dude"}
+        client = APIClient()
+        response = client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_character_unauthenticated(self):
+        character = self.create_dummy_character()
+
+        url = reverse("character-detail", args=[character.id])
+        client = APIClient()
+        response = client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class StarshipTests(BaseAPITestCase):
@@ -170,6 +228,61 @@ class StarshipTests(BaseAPITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Starship.objects.count(), 0)
+
+    def test_create_starship_unauthenticated(self):
+        url = reverse("starship-list")
+        data = {
+            "name": "Amazing Starship",
+            "model": "Latest Model 3",
+            "manufacturer": "Ferrari",
+            "cost_in_credits": "23000000",
+            "length": "15",
+            "max_atmosphering_speed": "1050",
+            "crew": "25",
+            "passengers": "30",
+            "cargo_capacity": "110",
+            "consumables": "1 week",
+            "hyperdrive_rating": "1.0",
+            "MGLT": "100",
+            "starship_class": "Starfighter",
+            "pilots": [self.pilot.id]
+        }
+        client = APIClient()
+        response = client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_starships_unauthenticated(self):
+        starship = self.create_dummy_starship()
+
+        url = reverse("starship-list")
+        client = APIClient()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_retrieve_starship_unauthenticated(self):
+        starship = self.create_dummy_starship()
+
+        url = reverse("starship-detail", args=[starship.id])
+        client = APIClient()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_starship_unauthenticated(self):
+        starship = self.create_dummy_starship()
+
+        url = reverse("starship-detail", args=[starship.id])
+        data = {"model": "Latest Model 5"}
+        client = APIClient()
+        response = client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_starship_unauthenticated(self):
+        starship = self.create_dummy_starship()
+
+        url = reverse("starship-detail", args=[starship.id])
+        client = APIClient()
+        response = client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
 class FilmTests(BaseAPITestCase):
@@ -270,3 +383,51 @@ class FilmTests(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(Film.objects.count(), 0)
 
+    def test_create_film_unauthenticated(self):
+        url = reverse("film-list")
+        data = {
+            "title": "New Star Wars Movie",
+            "episode_id": 12,
+            "opening_crawl": "In a galaxy far far way ......",
+            "director": "Christopher Nolan",
+            "producer": "Unknown",
+            "release_date": "2026-05-19",
+            "characters": [self.char1.id],
+            "starships": [self.ship1.id]
+        }
+        client = APIClient()
+        response = client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_films_unauthenticated(self):
+        film = self.create_dummy_film()
+
+        url = reverse("film-list")
+        client = APIClient()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_retrieve_film_unauthenticated(self):
+        film = self.create_dummy_film()
+
+        url = reverse("film-detail", args=[film.id])
+        client = APIClient()
+        response = client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_update_film_unauthenticated(self):
+        film = self.create_dummy_film()
+
+        url = reverse("film-detail", args=[film.id])
+        data = {"title": "The Newest Star Wars Movie"}
+        client = APIClient()
+        response = client.patch(url, data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_delete_film_unauthenticated(self):
+        film = self.create_dummy_film()
+
+        url = reverse("film-detail", args=[film.id])
+        client = APIClient()
+        response = client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

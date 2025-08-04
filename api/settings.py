@@ -1,12 +1,10 @@
 import os
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 from datetime import timedelta
-import dj_database_url
 
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY', 'ea)u)2v-8u6!wuhw6%y=jg2*fl1zh^0bhe3#-r@ki&mlv76@=b')
 DEBUG = bool(os.getenv('DEBUG', default=0))
@@ -145,6 +143,6 @@ USE_TZ = True
 
 
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR + "/staticfiles"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

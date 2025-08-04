@@ -8,7 +8,7 @@ def custom_exception_handler(exc, context):
 
     if isinstance(exc, ValidationError):
         return Response({
-            'message': 'Validation failed!',
+            'message': 'One or more fields in the request data are invalid!',
             'errors': response.data
         }, status=response.status_code)
 

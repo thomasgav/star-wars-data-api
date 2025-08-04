@@ -83,3 +83,37 @@ class SyncTests(APITestCase):
         self.assertEqual(Starship.objects.count(), 1)
         self.assertEqual(Film.objects.count(), 1)
 
+    @patch("apps.core.sync_data.requests.get")
+    def test_sync_fail(self, mock_get):
+
+        mock_get.side_effect = [
+            make_mock_response(mock_characters_response, 200),
+            make_mock_response(mock_starships_response, 400),
+            make_mock_response(mock_films_response, 200),
+        ]
+
+        url = reverse("sync")
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data["message"], "Syncing of data from SWAPI has failed!")
+
+        self.assertEqual(Character.objects.count(), 0)
+        self.assertEqual(Starship.objects.count(), 0)
+        self.assertEqual(Film.objects.count(), 0)
+
+    @patch("apps.core.sync_data.requests.get")
+    def test_sync_fail_unauthenticated(self, mock_get):
+
+        mock_get.side_effect = [
+            make_mock_response(mock_characters_response, 200),
+            make_mock_response(mock_starships_response, 200),
+            make_mock_response(mock_films_response, 200),
+        ]
+        client = APIClient()
+        url = reverse("sync")
+        response = client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+        self.assertEqual(Character.objects.count(), 0)
+        self.assertEqual(Starship.objects.count(), 0)
+        self.assertEqual(Film.objects.count(), 0)
