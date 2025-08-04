@@ -251,6 +251,28 @@ class StarshipTests(BaseAPITestCase):
         response = client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_create_starship_fail_not_null_value_missing(self):
+        url = reverse("starship-list")
+        data = {
+            "name": "Amazing Starship",
+            "model": "Latest Model 3",
+            "cost_in_credits": "23000000",
+            "length": "15",
+            "max_atmosphering_speed": "1050",
+            "crew": "25",
+            "passengers": "30",
+            "cargo_capacity": "110",
+            "consumables": "1 week",
+            "hyperdrive_rating": "1.0",
+            "MGLT": "100",
+            "starship_class": "Starfighter",
+            "pilots": [self.pilot.id]
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('manufacturer', response.data['errors'])
+        self.assertIn('This field is required.', str(response.data['errors']['manufacturer']))
+
     def test_list_starships_unauthenticated(self):
         starship = self.create_dummy_starship()
 
@@ -398,6 +420,22 @@ class FilmTests(BaseAPITestCase):
         client = APIClient()
         response = client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_film_fail_not_null_value_missing(self):
+        url = reverse("film-list")
+        data = {
+            "title": "New Star Wars Movie",
+            "opening_crawl": "In a galaxy far far way ......",
+            "director": "Christopher Nolan",
+            "producer": "Unknown",
+            "release_date": "2026-05-19",
+            "characters": [self.char1.id],
+            "starships": [self.ship1.id]
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('episode_id', response.data['errors'])
+        self.assertIn('This field is required.', str(response.data['errors']['episode_id']))
 
     def test_list_films_unauthenticated(self):
         film = self.create_dummy_film()
