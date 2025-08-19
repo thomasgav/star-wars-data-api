@@ -1,7 +1,7 @@
 import requests
 from django.db import transaction
 
-from .models import Character, Starship, Film
+from .models import *
 from api.exceptions import SyncFailed
 
 
@@ -19,14 +19,60 @@ def fetch_all(url):
 @transaction.atomic
 def sync():
     try:
-        characters = sync_characters()
+        planets = sync_planets()
+        species = sync_species(planets)
+        characters = sync_characters(planets, species)
+        vehicles = sync_vehicles(characters)
         starships = sync_starships(characters)
-        films = sync_films(characters, starships)
+        films = sync_films(characters, planets, species, vehicles, starships)
     except Exception as e:
         raise SyncFailed()
 
 
-def sync_characters():
+def sync_planets():
+    planet_map = {}
+    retrieved_planets = fetch_all("https://swapi.info/api/planets/")
+    for item in retrieved_planets:
+        obj, _ = Planet.objects.update_or_create(
+            name=item['name'],
+            defaults={
+                "rotation_period": item["rotation_period"],
+                "orbital_period": item["orbital_period"],
+                "diameter": item["diameter"],
+                "climate": item["climate"],
+                "gravity": item["gravity"],
+                "terrain": item["terrain"],
+                "surface_water": item["surface_water"],
+                "population": item["population"]
+            }
+        )
+        planet_map[item["url"]] = obj
+    return planet_map
+
+
+def sync_species(planets):
+    species_map = {}
+    retrieved_species = fetch_all("https://swapi.info/api/species/")
+    for item in retrieved_species:
+        obj, _ = Species.objects.update_or_create(
+            name=item["name"],
+            defaults={
+                "classification": item["classification"],
+                "designation": item["designation"],
+                "average_height": item["average_height"],
+                "skin_colors": item["skin_colors"],
+                "hair_colors": item["hair_colors"],
+                "eye_colors": item["eye_colors"],
+                "average_lifespan": item["average_lifespan"],
+                "language": item["language"],
+                "planet": planets.get(item["homeworld"], None),
+            }
+        )
+        species_map[item["url"]] = obj
+    return species_map
+
+
+def sync_characters(planets_map, species_map):
     character_map = {}
     for item in fetch_all("https://swapi.info/api/people/"):
         obj, _ = Character.objects.update_or_create(
@@ -39,11 +85,74 @@ def sync_characters():
                 "eye_color": item["eye_color"],
                 "birth_year": item["birth_year"],
                 "gender": item["gender"],
+                "planet": planets_map.get(item["homeworld"], None),
             }
         )
 
+        species_to_be_added = []
+        for url in item.get("species", []):
+            if url in species_map:
+                species_to_be_added.append(species_map[url])
+        obj.species.set(species_to_be_added)
+
         character_map[item["url"]] = obj
     return character_map
+
+
+def sync_characters(planets_map, species_map):
+    character_map = {}
+    for item in fetch_all("https://swapi.info/api/people/"):
+        obj, _ = Character.objects.update_or_create(
+            name=item["name"],
+            defaults={
+                "height": item["height"],
+                "mass": item["mass"],
+                "hair_color": item["hair_color"],
+                "skin_color": item["skin_color"],
+                "eye_color": item["eye_color"],
+                "birth_year": item["birth_year"],
+                "gender": item["gender"],
+                "planet": planets_map.get(item["homeworld"], None),
+            }
+        )
+
+        species_to_be_added = []
+        for url in item.get("species", []):
+            if url in species_map:
+                species_to_be_added.append(species_map[url])
+        obj.species.set(species_to_be_added)
+
+        character_map[item["url"]] = obj
+    return character_map
+
+
+def sync_vehicles(character_map):
+    vehicle_map = {}
+    for item in fetch_all("https://swapi.info/api/vehicles/"):
+        obj, _ = Vehicle.objects.update_or_create(
+            name=item["name"],
+            defaults={
+                "model": item["model"],
+                "manufacturer": item["manufacturer"],
+                "cost_in_credits": item["cost_in_credits"],
+                "length": item["length"],
+                "max_atmosphering_speed": item["max_atmosphering_speed"],
+                "crew": item["crew"],
+                "passengers": item["passengers"],
+                "cargo_capacity": item["cargo_capacity"],
+                "consumables": item["consumables"],
+                "vehicle_class": item["vehicle_class"],
+            }
+        )
+
+        character_to_be_added = []
+        for url in item.get("pilots", []):
+            if url in character_map:
+                character_to_be_added.append(character_map[url])
+        obj.pilots.set(character_to_be_added)
+
+        vehicle_map[item["url"]] = obj
+    return vehicle_map
 
 
 def sync_starships(character_map):
@@ -78,7 +187,7 @@ def sync_starships(character_map):
     return starship_map
 
 
-def sync_films(character_map, starship_map):
+def sync_films(character_map, planet_map, species_map, vehicle_map, starship_map):
     for item in fetch_all("https://swapi.info/api/films/"):
         obj, _ = Film.objects.update_or_create(
             title=item["title"],
@@ -96,6 +205,24 @@ def sync_films(character_map, starship_map):
             if url in character_map:
                 characters_to_be_added.append(character_map[url])
         obj.characters.set(characters_to_be_added)
+
+        planets_to_be_added = []
+        for url in item.get("planets", []):
+            if url in planet_map:
+                planets_to_be_added.append(planet_map[url])
+        obj.planets.set(planets_to_be_added)
+
+        species_to_be_added = []
+        for url in item.get("species", []):
+            if url in species_map:
+                species_to_be_added.append(species_map[url])
+        obj.species.set(species_to_be_added)
+
+        vehicles_to_be_added = []
+        for url in item.get("vehicles", []):
+            if url in vehicle_map:
+                vehicles_to_be_added.append(vehicle_map[url])
+        obj.vehicles.set(vehicles_to_be_added)
 
         starships_to_be_added = []
         for url in item.get("starships", []):

@@ -9,6 +9,9 @@ router = DefaultRouter()
 router.register(r'films', FilmViewSet)
 router.register(r'character', CharacterViewSet)
 router.register(r'starships', StarshipViewSet)
+router.register(r'vehicle', VehicleViewSet)
+router.register(r'species', SpeciesViewSet)
+router.register(r'planet', PlanetViewSet)
 
 
 urlpatterns = [
