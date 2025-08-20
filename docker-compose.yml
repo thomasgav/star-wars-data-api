@@ -1,27 +1,61 @@
 services:
   db:
-    image: postgres:17
+    build:
+      context: .
+      dockerfile: ./docker/local/postgres/Dockerfile
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
+    networks:
+      - star-wars-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER -d $POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   django-star-wars:
-    build: .
+    build:
+      context: .
+      dockerfile: ./docker/local/django/Dockerfile
     container_name: star-wars-api
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "8000:8000"
     volumes:
-      - .:/app
-      - ./static:/app/staticfiles
+      - .:/app:z
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
     env_file:
       - .env
+    networks:
+      - star-wars-network
     stdin_open: true
     tty: true
 
+  redis:
+    image: redis:7-alpine
+    networks:
+      - star-wars-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+    star-wars-network:
+        driver: bridge
+
+
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:

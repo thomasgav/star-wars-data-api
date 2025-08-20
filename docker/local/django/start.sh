@@ -1,6 +1,10 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-set -e
+set -o errexit
+
+set -o pipefail
+
+set -o nounset
 
 python manage.py collectstatic --noinput
 python manage.py makemigrations --noinput
