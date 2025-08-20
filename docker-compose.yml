@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/local/postgres/Dockerfile
+    image: star-wars-postgres:latest
     ports:
       - "5432:5432"
     volumes:
@@ -17,11 +18,11 @@ services:
       timeout: 5s
       retries: 5
 
-  django-star-wars:
+  api:
     build:
       context: .
       dockerfile: ./docker/local/django/Dockerfile
-    container_name: star-wars-api
+    image: star-wars-django:latest
     depends_on:
       db:
         condition: service_healthy
