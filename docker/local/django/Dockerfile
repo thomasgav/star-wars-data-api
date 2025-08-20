@@ -61,16 +61,21 @@ RUN mkdir -p /app/staticfiles /app/mediafiles \
 # Copy project files
 COPY --chown=appuser:appuser . .
 
-# Copy and prepare entrypoint and start files
+# Copy helper scripts
 COPY ./docker/local/django/entrypoint.sh /entrypoint.sh
 RUN sed -i 's/\r$//g' /entrypoint.sh && chmod +x /entrypoint.sh
 
 COPY ./docker/local/django/start.sh /start.sh
 RUN sed -i 's/\r$//g' /start.sh && chmod +x /start.sh
 
+COPY ./docker/local/celery/worker/start.sh /start-celery-worker.sh
+RUN sed -i 's/\r$//g' /start-celery-worker.sh && chmod +x /start-celery-worker.sh
+
+COPY ./docker/local/flower/start.sh /start-flower.sh
+RUN sed -i 's/\r$//g' /start-flower.sh && chmod +x /start-flower.sh
+
 USER appuser
 
 EXPOSE 8000
 
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/start.sh"]
+ENTRYPOINT ["/bin/sh", "-c"]

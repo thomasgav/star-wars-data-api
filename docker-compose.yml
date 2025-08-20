@@ -23,6 +23,8 @@ services:
       context: .
       dockerfile: ./docker/local/django/Dockerfile
     image: star-wars-django:latest
+    entrypoint: ["/entrypoint.sh"]
+    command: /start.sh
     depends_on:
       db:
         condition: service_healthy
@@ -56,7 +58,7 @@ services:
   celery-worker:
     build:
       context: .
-      dockerfile: ./docker/local/celery/Dockerfile
+      dockerfile: ./docker/local/django/Dockerfile
     image: star-wars-worker:latest
     command: /start-celery-worker.sh
     volumes:
@@ -92,7 +94,7 @@ services:
   flower:
     build:
       context: .
-      dockerfile: ./docker/local/flower/Dockerfile
+      dockerfile: ./docker/local/django/Dockerfile
     image: star-wars-flower:latest
     command: /start-flower.sh
     volumes:
