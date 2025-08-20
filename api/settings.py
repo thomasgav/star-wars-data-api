@@ -34,6 +34,8 @@ INSTALLED_APPS = [
     "apps.core",
 ]
 
+
+# ========== Middleware settings ==============
 MIDDLEWARE = [
     'silk.middleware.SilkyMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -48,6 +50,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'api.urls'
 
+
+# ========== Template settings ==============
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -64,10 +68,15 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'api.wsgi.application'
 
+
+# ========== User model ==============
 AUTH_USER_MODEL = 'user_management.User'
 
+
+# ========== Database settings ==============
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.{}".format(
@@ -81,12 +90,21 @@ DATABASES = {
     }
 }
 
+
+# ========== Storages ==============
 STORAGES = {
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
 
+
+# ========== Static files settings ==============
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+
+# ========== DRF settings ==============
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -97,6 +115,8 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
+
+# ========== JWT settings ==============
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
@@ -106,12 +126,24 @@ SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
 }
 
+
+# ========== DRF Spectacular settings ==============
 SPECTACULAR_SETTINGS = {
     "TITLE": "Star Wars API",
     "DESCRIPTION": "Assignment for interview process.s",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+
+# ========== Celery settings ==============
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -128,21 +160,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# ========== Silk settings ==============
 SILKY_PYTHON_PROFILER = True
 SILKY_META = True
 
+
+# ========== Language and time settings ==============
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Europe/Athens'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
-
-STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

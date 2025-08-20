@@ -38,6 +38,8 @@ services:
       - .env
     networks:
       - star-wars-network
+    # expose:
+    #   - "8000"
     stdin_open: true
     tty: true
 
@@ -51,12 +53,70 @@ services:
       timeout: 5s
       retries: 5
 
+  celery-worker:
+    build:
+      context: .
+      dockerfile: ./docker/local/celery/Dockerfile
+    image: star-wars-worker:latest
+    command: /start-celery-worker.sh
+    volumes:
+      - .:/app:z
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - star-wars-network
+
+  # celery-beat:
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/local/celery/Dockerfile
+  #   image: star-wars-celery:latest
+  #   command: /start-celery-beat.sh
+  #   volumes:
+  #     - .:/app:z
+  #   env_file:
+  #     - .env
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   networks:
+  #     - star-wars-network
+
+  flower:
+    build:
+      context: .
+      dockerfile: ./docker/local/flower/Dockerfile
+    image: star-wars-flower:latest
+    command: /start-flower.sh
+    volumes:
+      - flower_data:/data
+    env_file:
+      - .env
+    ports:
+      - "5555:5555"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - star-wars-network
+
+
 networks:
     star-wars-network:
         driver: bridge
 
 
 volumes:
-  postgres_data:
   static_volume:
   media_volume:
+  postgres_data: {}
+  flower_data: {}
