@@ -55,8 +55,8 @@ COPY --from=python-build-stage --chown=appuser:appuser /usr/src/app/wheels /whee
 RUN pip install --no-cache-dir --no-index --find-links=/wheels/ /wheels/* \
    && rm -rf /wheels/
 
-RUN mkdir -p /app/staticfiles /app/mediafiles \
-    && chown -R appuser:appuser /app/staticfiles /app/mediafiles
+# RUN mkdir -p /app/staticfiles /app/mediafiles \
+#     && chown -R appuser:appuser /app/staticfiles /app/mediafiles
 
 # Copy project files
 COPY --chown=appuser:appuser . .

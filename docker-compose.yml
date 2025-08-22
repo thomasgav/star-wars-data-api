@@ -111,6 +111,20 @@ services:
     networks:
       - star-wars-network
 
+  nginx:
+    build:
+      context: .
+      dockerfile: ./docker/local/nginx/Dockerfile
+    image: star-wars-nginx:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/mediafiles
+    networks:
+      - star-wars-network
 
 networks:
     star-wars-network:

@@ -130,7 +130,7 @@ SIMPLE_JWT = {
 # ========== DRF Spectacular settings ==============
 SPECTACULAR_SETTINGS = {
     "TITLE": "Star Wars API",
-    "DESCRIPTION": "Assignment for interview process.s",
+    "DESCRIPTION": "Assignment for interview process.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
